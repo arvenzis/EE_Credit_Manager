@@ -2,15 +2,28 @@
 
 class Credit_manager_upd {
 
+    /**
+     * @var string
+     */
     var $version = '1.0';
 
-    function __construct(){
+    /**
+     * Credit_manager_upd constructor.
+     */
+    function __construct()
+    {
         // Make a local reference to the ExpressionEngine super object
         $this->EE = get_instance();
+
+        ee()->load->dbforge();
     }
 
 
-    function install(){
+    /**
+     * @return bool
+     */
+    function install()
+    {
         $data = array(
             'module_name' 	 => 'Credit_manager',
             'module_version' => $this->version,
@@ -22,26 +35,58 @@ class Credit_manager_upd {
 
         $data = array(
             'class'     => 'Credit_manager' ,
-            'method'    => 'test'
+            'method'    => 'buy_product'
         );
 
         ee()->db->insert('actions', $data);
 
+        //Create a table to save the entry id of the webinar and the member id of users who bought the webinar
+        $this->create_table_credit_manager();
+
         return TRUE;
     }
 
+    /**
+     * @param string $current
+     * @return bool
+     */
     function update($current = '')
     {
-
+        return TRUE;
     }
 
-    function uninstall(){
+    /**
+     * @return bool
+     */
+    function uninstall()
+    {
         $this->EE->db->where('module_name', 'Credit_manager');
         $this->EE->db->delete('modules');
 
         ee()->db->where('class', 'Credit_manager');
         ee()->db->delete('actions');
 
+        ee()->dbforge->drop_table('credit_manager');
+
         return TRUE;
+    }
+
+    /**
+     *  Creates the table 'credit_manager'
+     */
+    private function create_table_credit_manager()
+    {
+        if(!ee()->db->table_exists('credit_manager'))
+        {
+            $fields = array(
+                'id'            => array('type' => 'int', 'constraint' => '10', 'unsigned' => TRUE, 'null' => FALSE, 'auto_increment' => TRUE),
+                'entry_id'      => array('type' => 'int'),
+                'member_id'     => array('type' => 'int')
+            );
+
+            ee()->dbforge->add_field($fields);
+            ee()->dbforge->add_key('id', TRUE);
+            ee()->dbforge->create_table('credit_manager');
+        }
     }
 }
