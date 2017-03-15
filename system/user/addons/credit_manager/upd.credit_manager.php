@@ -43,6 +43,9 @@ class Credit_manager_upd {
         //Create a table to save the entry id of the webinar and the member id of users who bought the webinar
         $this->create_table_credit_manager();
 
+        //Create a function that creates the custom member field credits
+        $this->create_custom_member_field();
+
         return TRUE;
     }
 
@@ -68,6 +71,13 @@ class Credit_manager_upd {
 
         ee()->dbforge->drop_table('credit_manager');
 
+        // Drop all information that is related to the 'Credits' field
+        ee()->dbforge->drop_column('member_data', 'm_field_id_999');
+        ee()->dbforge->drop_column('member_data', 'm_field_ft_999');
+
+        ee()->db->where('m_field_name', 'credits');
+        ee()->db->delete('member_fields');
+
         return TRUE;
     }
 
@@ -88,5 +98,21 @@ class Credit_manager_upd {
             ee()->dbforge->add_key('id', TRUE);
             ee()->dbforge->create_table('credit_manager');
         }
+    }
+
+    private function create_custom_member_field()
+    {
+        //ToDo: make m_field_id_999 and m_field_ft_999 dynamic
+
+        // Add new columns in the member_data table
+        ee()->dbforge->add_column('member_data', array('m_field_id_999' => array('type' => 'text')));
+        ee()->dbforge->add_column('member_data', array('m_field_ft_999' => array('type' => 'tinytext')));
+
+
+        // Add the actual credits field
+        ee()->db->insert('member_fields', array('m_field_name'  => 'credits',
+                                                'm_field_label' => 'Credits',
+                                                'm_field_type'  => 'text'
+                                                ));
     }
 }

@@ -5,8 +5,6 @@
  */
 class Credit_manager {
 
-    //Create a function that creates the custom member field credits for you.
-    //test1132
 
     /**
      * @return bool
@@ -54,7 +52,7 @@ class Credit_manager {
     /**
      * @param $entry_id
      */
-    function open_webinar($entry_id){
+    private function open_webinar($entry_id){
         ee()->db->select('field_id_3');
         ee()->db->where('entry_id', $entry_id);
         $query = ee()->db->get('channel_data');
