@@ -72,8 +72,11 @@ class Credit_manager_upd {
         ee()->dbforge->drop_table('credit_manager');
 
         // Drop all information that is related to the 'Credits' field
-        ee()->dbforge->drop_column('member_data', 'm_field_id_999');
-        ee()->dbforge->drop_column('member_data', 'm_field_ft_999');
+        ee()->db->where('m_field_name', 'credits');
+        $m_field_id = ee()->db->get('member_fields')->row()->m_field_id;
+
+        ee()->dbforge->drop_column('member_data', 'm_field_id_' . $m_field_id);
+        ee()->dbforge->drop_column('member_data', 'm_field_ft_' . $m_field_id);
 
         ee()->db->where('m_field_name', 'credits');
         ee()->db->delete('member_fields');
@@ -102,15 +105,22 @@ class Credit_manager_upd {
 
     private function create_custom_member_field()
     {
-        //ToDo: make m_field_id_999 and m_field_ft_999 dynamic
+        // This variable is to make the columns dynamic
+        $uniqueFieldId = count( ee()->db->get('member_data')->row() ) + 1;
+
+
+        //ToDo: Find a way to calculate the columns, not the rows.
+        echo count( ee()->db->get('member_data')->row() );
+
 
         // Add new columns in the member_data table
-        ee()->dbforge->add_column('member_data', array('m_field_id_999' => array('type' => 'text')));
-        ee()->dbforge->add_column('member_data', array('m_field_ft_999' => array('type' => 'tinytext')));
+        ee()->dbforge->add_column('member_data', array('m_field_id_' . $uniqueFieldId => array('type' => 'text')));
+        ee()->dbforge->add_column('member_data', array('m_field_ft_' . $uniqueFieldId => array('type' => 'tinytext')));
 
 
         // Add the actual credits field
-        ee()->db->insert('member_fields', array('m_field_name'  => 'credits',
+        ee()->db->insert('member_fields', array('m_field_id'    => $uniqueFieldId,
+                                                'm_field_name'  => 'credits',
                                                 'm_field_label' => 'Credits',
                                                 'm_field_type'  => 'text'
                                                 ));
