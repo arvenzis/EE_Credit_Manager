@@ -8,16 +8,13 @@ class Credit_manager_upd {
     /**
      * @var string
      */
-    var $version = '1.0';
+    var $version = '1.0.1';
 
     /**
      * Credit_manager_upd constructor.
      */
     function __construct()
     {
-        // Make a local reference to the ExpressionEngine super object
-        $this->EE = get_instance();
-
         ee()->load->dbforge();
     }
 
@@ -34,19 +31,16 @@ class Credit_manager_upd {
             'has_publish_fields' => 'n'
         );
 
-        $this->EE->db->insert('modules', $data);
+        ee()->db->insert('modules', $data);
 
         $data = array(
             'class'     => 'Credit_manager' ,
-            'method'    => 'buy_product'
+            'method'    => 'buy_webinar'
         );
 
         ee()->db->insert('actions', $data);
 
-        //Create a table to save the entry id of the webinar and the member id of users who bought the webinar
         $this->create_table_credit_manager();
-
-        //Create a function that creates the custom member field credits
         $this->create_custom_member_field();
 
         return TRUE;
@@ -66,23 +60,22 @@ class Credit_manager_upd {
      */
     function uninstall()
     {
-        $this->EE->db->where('module_name', 'Credit_manager');
-        $this->EE->db->delete('modules');
+        ee()->db->where('module_name', 'Credit_manager')
+                ->delete('modules');
 
-        ee()->db->where('class', 'Credit_manager');
-        ee()->db->delete('actions');
+        ee()->db->where('class', 'Credit_manager')
+                ->delete('actions');
 
         ee()->dbforge->drop_table('credit_manager');
 
-        // Drop all information that is related to the 'Credits' field
         ee()->db->where('m_field_name', 'credits');
-        $m_field_id = ee()->db->get('member_fields')->row()->m_field_id;
+        $credit_field_id = ee()->db->get('member_fields')->row()->m_field_id;
 
-        ee()->dbforge->drop_column('member_data', 'm_field_id_' . $m_field_id);
-        ee()->dbforge->drop_column('member_data', 'm_field_ft_' . $m_field_id);
+        ee()->dbforge->drop_column('member_data', 'm_field_id_' . $credit_field_id);
+        ee()->dbforge->drop_column('member_data', 'm_field_ft_' . $credit_field_id);
 
-        ee()->db->where('m_field_name', 'credits');
-        ee()->db->delete('member_fields');
+        ee()->db->where('m_field_name', 'credits')
+                ->delete('member_fields');
 
         return TRUE;
     }
@@ -120,9 +113,9 @@ class Credit_manager_upd {
         ee()->db->insert('member_fields', $data);
 
         // Get ID of column to be set
-        ee()->db->select('m_field_id');
-        ee()->db->from('member_fields');
-        ee()->db->where('m_field_name', 'credits');
+        ee()->db->select('m_field_id')
+                ->from('member_fields')
+                ->where('m_field_name', 'credits');
         $id = ee()->db->get()->row('m_field_id');
 
         // Add new columns in the member_data table
