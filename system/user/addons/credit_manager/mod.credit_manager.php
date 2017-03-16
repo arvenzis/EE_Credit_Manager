@@ -33,13 +33,19 @@ class Credit_manager {
             return FALSE;
         }
 
-        // Get current member credits where m_field_id_1 is the field that stores the credits
-        ee()->db->select('m_field_id_999');
+        // Get the id of the credits field
+        ee()->db->select('m_field_id');
+        ee()->db->from('member_fields');
+        ee()->db->where('m_field_name', 'credits');
+        $id = ee()->db->get()->row('m_field_id');
+
+        // Get current member credits where m_field_id_ is the field that stores the credits
+        ee()->db->select('m_field_id_' . $id);
         ee()->db->where('member_id', $member_id);
         $query = ee()->db->get('member_data');
 
         // Check if the member credits are above 0
-        if ($query->row()->m_field_id_999 <= 0)
+        if ($query->row('m_field_id_'.$id) <= 0)
         {
             // Show error about not having enough credits
             ee()->functions->redirect('/ingelogd/index/error');
@@ -47,8 +53,9 @@ class Credit_manager {
         }
 
         // Remove one credit from the specific members' credits
-        $new_credit_amount =  $query->row()->m_field_id_999 - 1;
-        ee()->db->where('member_id', $member_id)->update('member_data', array('m_field_id_999' => $new_credit_amount));
+        $new_credit_amount =  $query->row('m_field_id_'.$id) - 1;
+
+        ee()->db->where('member_id', $member_id)->update('member_data', array('m_field_id_' . $id => $new_credit_amount));
 
         // Add a column to the table credit_manager with the member id and entry_id so the module knows this specific webinar has been bought
         ee()->db->insert('credit_manager', array('member_id' => $member_id, 'entry_id' => $entry_id));

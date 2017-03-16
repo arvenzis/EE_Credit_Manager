@@ -1,5 +1,8 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+/**
+ * Class Credit_manager_upd
+ */
 class Credit_manager_upd {
 
     /**
@@ -103,6 +106,9 @@ class Credit_manager_upd {
         }
     }
 
+    /**
+     *  Creates the custom member field 'Credits'
+     */
     private function create_custom_member_field()
     {
         // Add the actual credits field
