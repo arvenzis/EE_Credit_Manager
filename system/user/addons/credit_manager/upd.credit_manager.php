@@ -105,23 +105,22 @@ class Credit_manager_upd {
 
     private function create_custom_member_field()
     {
-        // This variable is to make the columns dynamic
-        //$uniqueFieldId = count( ee()->db->get('member_data')->row() ) + 1;
+        // Add the actual credits field
+        $data = array(
+            'm_field_name'  => 'credits',
+            'm_field_label' => 'Credits',
+            'm_field_type'  => 'text'
+        );
+        ee()->db->insert('member_fields', $data);
 
-        //ToDo: Find a way to calculate the columns, not the rows.
-        //echo count( ee()->db->get('member_data')->row() );
-
+        // Get ID of column to be set
+        ee()->db->select('m_field_id');
+        ee()->db->from('member_fields');
+        ee()->db->where('m_field_name', 'credits');
+        $id = ee()->db->get()->row('m_field_id');
 
         // Add new columns in the member_data table
-        ee()->dbforge->add_column('member_data', array('m_field_id_999' => array('type' => 'text')));
-        ee()->dbforge->add_column('member_data', array('m_field_ft_999' => array('type' => 'tinytext')));
-
-
-        // Add the actual credits field
-        ee()->db->insert('member_fields', array('m_field_id'    => '999',
-                                                'm_field_name'  => 'credits',
-                                                'm_field_label' => 'Credits',
-                                                'm_field_type'  => 'text'
-                                                ));
+        ee()->dbforge->add_column('member_data', array('m_field_id_' . $id => array('type' => 'text')));
+        ee()->dbforge->add_column('member_data', array('m_field_ft_' . $id => array('type' => 'tinytext')));
     }
 }
