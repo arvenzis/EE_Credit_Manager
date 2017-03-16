@@ -13,6 +13,26 @@ class Credit_manager {
         return '/?ACT='.ee()->functions->fetch_action_id('Credit_manager', 'buy_product');
     }
 
+    public function check_if_product_is_already_bought()
+    {
+        // Get the parameter(s) that the user gave the method
+        $entry_id = ee()->TMPL->fetch_param('entry_id');
+
+        // Get the member id of the logged in user and the entry id of the webinar the user clicked
+        $member_id = ee()->session->userdata('member_id');
+
+        // Check if the webinar has been bought yet
+        ee()->db->where('member_id', $member_id);
+        ee()->db->where('entry_id', $entry_id);
+        $query = ee()->db->get('credit_manager');
+
+        if($query->num_rows() == 0)
+        {
+            // You can use this as a class for showing a modal pop-up for example
+            return 'not-bought';
+        }
+    }
+
     /**
      * @return bool
      */
