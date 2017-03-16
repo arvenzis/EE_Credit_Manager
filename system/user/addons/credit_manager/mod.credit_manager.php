@@ -86,8 +86,16 @@ class Credit_manager {
     /**
      * @param $entry_id
      */
-    private function open_webinar($entry_id){
-        ee()->db->select('field_id_3');
+    private function open_webinar($entry_id)
+    {
+        // Get the id of the webinar url field
+        ee()->db->select('field_id');
+        ee()->db->from('channel_fields');
+        ee()->db->where('field_name', 'webinar_url');
+        $id = ee()->db->get()->row('field_id');
+
+        // Get the actual url to the webinar
+        ee()->db->select('field_id_' . $id);
         ee()->db->where('entry_id', $entry_id);
         $query = ee()->db->get('channel_data');
 
@@ -95,7 +103,7 @@ class Credit_manager {
         {
             // Open the webinar in a new tab (thus the JavaScript) and redirect back to the page we where we came from
             echo '<script type="text/javascript">
-                    window.open("'.$query->row()->field_id_3.'");
+                    window.open("' . $query->row('field_id_'.$id) . '");
                     window.location.href = "/ingelogd/index";
                  </script>';
 
