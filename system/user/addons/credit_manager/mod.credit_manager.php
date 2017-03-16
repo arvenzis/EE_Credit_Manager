@@ -38,11 +38,14 @@ class Credit_manager {
         $entry_id = ee()->TMPL->fetch_param('entry_id');
         $current_member_id = ee()->session->userdata('member_id');
 
-        ee()->db->where('member_id', $current_member_id);
-        ee()->db->where('entry_id', $entry_id);
-        $result = ee()->db->get('credit_manager');
+        //ToDo: Put this in a method
+        ee()->db->where('member_id', $current_member_id)
+                ->where('entry_id', $entry_id);
 
-        if($result->num_rows() == 0)
+        $webinar = ee()->db->get('credit_manager');
+        //END ToDo: Put this in a method
+
+        if($webinar->num_rows() == 0)
         {
             // You can use this as a class for showing a modal pop-up for example
             return 'not-bought';
@@ -60,13 +63,15 @@ class Credit_manager {
         $current_member_id = ee()->session->userdata('member_id');
         $entry_id = $_GET['entry_id'];
 
+        //ToDo: Put this in a method
         ee()->db->where('member_id', $current_member_id)
                 ->where('entry_id', $entry_id);
 
-        $result = ee()->db->get('credit_manager');
+        $webinar = ee()->db->get('credit_manager');
+        //END ToDo: Put this in a method
 
         // Execute this when the webinar has already been bought
-        if($result->num_rows() != 0)
+        if($webinar->num_rows() != 0)
         {
             $this->open_webinar($entry_id);
 
