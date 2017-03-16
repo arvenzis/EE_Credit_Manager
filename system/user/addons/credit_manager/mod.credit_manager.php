@@ -5,14 +5,19 @@
  */
 class Credit_manager {
 
+    /**
+     * @return string
+     */
+    public function get_product_url()
+    {
+        return '/?ACT='.ee()->functions->fetch_action_id('Credit_manager', 'buy_product');
+    }
 
     /**
      * @return bool
      */
     public function buy_product()
     {
-        // The user got here through this URL: ?ACT=30&entry_id={entry_id}
-
         // Get the member id of the logged in user and the entry id of the webinar the user clicked
         $member_id = ee()->session->userdata('member_id');
         $entry_id = $_GET['entry_id'];
@@ -25,23 +30,25 @@ class Credit_manager {
         if($query->num_rows() != 0)
         {
             $this->open_webinar($entry_id);
+            return FALSE;
         }
 
         // Get current member credits where m_field_id_1 is the field that stores the credits
-        ee()->db->select('m_field_id_1');
+        ee()->db->select('m_field_id_999');
         ee()->db->where('member_id', $member_id);
         $query = ee()->db->get('member_data');
 
         // Check if the member credits are above 0
-        if ($query->row()->m_field_id_1 <= 0)
+        if ($query->row()->m_field_id_999 <= 0)
         {
             // Show error about not having enough credits
             ee()->functions->redirect('/ingelogd/index/error');
+            return FALSE;
         }
 
         // Remove one credit from the specific members' credits
-        $new_credit_amount =  $query->row()->m_field_id_1 - 1;
-        ee()->db->where('member_id', $member_id)->update('member_data', array('m_field_id_1' => $new_credit_amount));
+        $new_credit_amount =  $query->row()->m_field_id_999 - 1;
+        ee()->db->where('member_id', $member_id)->update('member_data', array('m_field_id_999' => $new_credit_amount));
 
         // Add a column to the table credit_manager with the member id and entry_id so the module knows this specific webinar has been bought
         ee()->db->insert('credit_manager', array('member_id' => $member_id, 'entry_id' => $entry_id));
