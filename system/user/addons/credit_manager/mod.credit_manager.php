@@ -24,26 +24,20 @@ class Credit_manager {
     }
 
     /**
-     * Checks if the webinar has been bought yet by
-     * looking at the custom table in the database
+     * Return a class when the webinar has not been bought yet
      *
      * PARAMETERS:
      * entry_id - helps retrieving the entry_id linked to a webinar
      *
      * @return string
      */
-    public function check_if_webinar_is_already_bought()
+    public function return_class()
     {
         // Get the parameter(s) that the user gave the method
         $entry_id = ee()->TMPL->fetch_param('entry_id');
         $current_member_id = ee()->session->userdata('member_id');
 
-        //ToDo: Put this in a method
-        ee()->db->where('member_id', $current_member_id)
-                ->where('entry_id', $entry_id);
-
-        $webinar = ee()->db->get('credit_manager');
-        //END ToDo: Put this in a method
+        $webinar = $this->check_for_webinar($current_member_id, $entry_id);
 
         if($webinar->num_rows() == 0)
         {
@@ -63,12 +57,7 @@ class Credit_manager {
         $current_member_id = ee()->session->userdata('member_id');
         $entry_id = $_GET['entry_id'];
 
-        //ToDo: Put this in a method
-        ee()->db->where('member_id', $current_member_id)
-                ->where('entry_id', $entry_id);
-
-        $webinar = ee()->db->get('credit_manager');
-        //END ToDo: Put this in a method
+        $webinar = $this->check_for_webinar($current_member_id, $entry_id);
 
         // Execute this when the webinar has already been bought
         if($webinar->num_rows() != 0)
@@ -108,6 +97,24 @@ class Credit_manager {
                                                  'entry_id' => $entry_id));
 
         $this->open_webinar($entry_id);
+    }
+
+    /**
+     * Checks if the webinar has been bought yet by
+     * looking at the custom table in the database
+     *
+     * @param $current_member_id
+     * @param $entry_id
+     * @return mixed
+     */
+    private function check_for_webinar($current_member_id, $entry_id)
+    {
+        ee()->db->where('member_id', $current_member_id)
+            ->where('entry_id', $entry_id);
+
+        $webinar = ee()->db->get('credit_manager');
+
+        return $webinar;
     }
 
     /**
